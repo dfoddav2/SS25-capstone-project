@@ -1,6 +1,9 @@
 from general_scraper import setup_selenium_driver, get_page_source, parse_html
 from category_page_scraper import extract_car_links
 from car_details_scraper import scrape_car_title, scrape_price, scrape_car_mileage, scrape_fuel_type, scrape_gearbox, scrape_power, scrape_first_registration
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import random
 import sqlite3
@@ -14,6 +17,55 @@ class CarScraper:
         self.cursor = self.conn.cursor()
         self.create_table()  # Ensure the table exists
         self.driver = setup_selenium_driver() # Initialize the Selenium Driver
+        self.car_links = []  # List to store car links
+
+    def get_car_links(self, category_url):
+        """Gets all car links from a category page, including pagination."""
+        try:
+            self.driver.get(category_url)
+            time.sleep(2)  # Wait for the page to load
+            i = 1  # Initialize page counter
+
+            # Handle the consent popup
+            try:
+                decline_button = WebDriverWait(self.driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-testid="as24-cmp-decline-all-button"]'))
+                )
+                decline_button.click()
+                print("Consent popup declined.")
+            except:
+                print("No consent popup found.")
+
+            while True:  # Loop through pagination
+                html = self.driver.page_source
+                soup = parse_html(html)
+
+                print(f"\nScraping page {i}...")
+                self.car_links.extend(extract_car_links(soup, self.base_url))
+
+                # Find the "Next" button
+                try:
+                    next_button_li = WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, '//li[contains(@class, "prev-next")]/button[@aria-label="Go to next page"]'))
+                    )
+
+                    # Check if the button is disabled
+                    if next_button_li.get_attribute("aria-disabled") == "true":
+                        print("Next button is disabled. End of pagination.")
+                        break  # Exit the loop if the button is disabled
+
+                    # Click the "Next" button
+                    next_button_li.click()
+                    print("Clicked 'Next' button.  Waiting for page to load...")
+                    i += 1  # Increment page counter
+                    time.sleep(2)  # Wait for the next page to load
+
+                except:
+                    print("No more 'Next' button found.  End of pagination.")
+                    break  # No more "Next" button, exit the loop
+                
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def create_table(self):
         """Creates the car_listing table if it doesn't exist."""
@@ -86,7 +138,6 @@ class CarScraper:
             car_links = extract_car_links(soup, self.base_url)
 
             for i, link in enumerate(car_links):
-                print(f"Scraping car details from: {link}")
                 self.scrape_car_details(link)
 
                 # Periodic modifications
@@ -122,6 +173,7 @@ if __name__ == '__main__':
     category_url = input("Enter the category page URL to scrape: ")
     scraper = CarScraper()  # Instantiate the CarScraper
     try:
-        scraper.scrape_category_page(category_url)
+        scraper.get_car_links(category_url)
+        print(f"\nFound {len(scraper.car_links)} car links.")
     finally:
         scraper.close()  # Close the connection and driver in a finally block

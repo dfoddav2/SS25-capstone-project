@@ -49,7 +49,7 @@ def scrape_price(soup):
         price = soup.find('span', {'class': 'PriceInfo_price__XU0aF'}).text.strip()
         if price:
             # Extract the numeric part of the price
-            price_numeric = re.sub(r'[^\d]', '', price)
+            price_numeric = re.sub(r'[^\d]', '', price.split(".")[0])
             return int(price_numeric)
         else:
             raise ElementNotFoundError("Car price not found")

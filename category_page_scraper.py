@@ -9,3 +9,9 @@ def extract_car_links(soup, base_url):
             absolute_url = base_url + href if not href.startswith('http') else href
             links.append(absolute_url)
     return links
+
+def extract_pages(soup, base_url):
+    """Extracts pagination links from a category page."""
+    pages = []
+    prev_next = soup.find_all('li', {'class': 'prev-next'})
+    return pages

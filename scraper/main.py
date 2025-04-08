@@ -1,4 +1,5 @@
 from selenium_scraper import CarScraperSelenium
+from requests_scraper import scrape_make_car_details, scrape_all_car_details
 from concurrent.futures import ProcessPoolExecutor
 import os
 
@@ -91,8 +92,9 @@ if __name__ == '__main__':
                                                                         /_/                 """)
     print("Welcome!\n")
     option = input(
-        "What do you want to do?\n\n1. Scrape car links\n2. Scrape car details\n3. Consolidate car links\n4. Exit\n\nEnter your choice: ")
+        "What do you want to do?\n\n1. Scrape car links (requires selenium with driver)\n2. Scrape car details\n3. Consolidate car links\n4. Exit\n\nEnter your choice: ")
     if option == '1':
+        print("\n--- Scraping car links ---\n")
         parallel = input("Do you want to scrape in parallel? (y/n): ")
         if parallel.lower() == 'y':
             parallel_scrape_car_links()
@@ -100,9 +102,27 @@ if __name__ == '__main__':
         elif parallel.lower() == 'n':
             singular_scrape_car_links()
     elif option == '2':
-        print("\n!!! Scraping car details is not yet implemented. Exiting... !!!\n")
-        exit(1)
+        singular_make = input(
+            "Do you want to scrape a single car make? (y/n): ")
+        if singular_make.lower() == 'y':
+            print(
+                f"\n--- This will consolidate details in the file 'car_links_[make-name].parquet' ---")
+            make = input("Enter the car make to scrape details for: ")
+            scrape_make_car_details(make)
+        elif singular_make.lower() == 'n':
+            print(
+                "\n--- This will consolidate details in the file 'all_car_links.parquet' ---")
+            make = input(
+                "Enter the car make to scrape details starting from (or leave blank to scrape all): ")
+            if make:
+                scrape_all_car_details(make)
+            else:
+                scrape_all_car_details()
+        else:
+            print("\n!!! Invalid input. Exiting... !!!\n")
+            exit(1)
     elif option == '3':
+        print("\n--- Consolidating car links ---\n")
         print("\n!!! Consolidating car links is not yet implemented. Exiting... !!!\n")
         exit(1)
     elif option == '4':

@@ -2,3 +2,5 @@ pandas
 matplotlib
 seaborn
 pyarrow
+scikit-learn
+xgboost

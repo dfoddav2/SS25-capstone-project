@@ -2,6 +2,8 @@
 
 This is the repository for the SS2025 datascience Capstone Project course assignment of Informatics BSc at IMC Krems.
 
+This README purely serves as a guide on how to run the code and what is the general structure of the project like. To see the actual interpretation of the results see the [report](./report/REPORT.pdf).
+
 ## Get started
 
 Use the provided venv:

@@ -14,4 +14,4 @@
 
 # Other common files
 *.dvi
-*.pdf
+# *.pdf

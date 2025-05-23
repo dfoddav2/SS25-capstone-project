@@ -11,6 +11,8 @@
 *.out
 *.toc
 *.synctex.gz
+*.bcf
+*.run.xml
 
 # Other common files
 *.dvi

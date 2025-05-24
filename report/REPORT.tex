@@ -8,6 +8,7 @@
 \usepackage{graphicx}            % For images
 \usepackage{array}               % For extended table features
 \usepackage{setspace}
+\usepackage{csquotes}
 \usepackage[backend=biber, style=ieee]{biblatex}
 \addbibresource{bibliography.bib}
 % \usepackage{xcolor}
@@ -50,21 +51,47 @@ A brief overview of the project, including problem statement, methodology, key f
 \section{Literature Review}
 Summary of relevant research and related works in the field. This section does not need to be exhaustive; include background knowledge on how the problem has been addressed before and how you plan to solve it.
 
-Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction car prices seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results.
+Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/google_scholar.png}
-  \caption{Screenshot of Google Scholar Search}
+  \caption{Screenshot of Google Scholar Search. Source: Google Scholar}
   \label{fig:google_scholar}
 \end{figure}
 
 However, looking for papers that solely try and explore the data and find interesting patterns is lot more difficult. Mostly, the exploration of all the data is done in the context of a prediction model, which is why we also aim to create a usable prediction model as part of our assignment.
 
-Here, as the literature review is a small portion of the report, I will just mention some of the interesting conclusions we have found from others. Firstly, there is seemingly no real consensus on what the best model is for predicting car prices.
-Some papers like \cite{alsharedUsedCarsPrice2021} for example...
+Here, as the literature review is a small portion of the report, I will just mention some of the interesting conclusions we have found from others. Firstly, there is seemingly no real consensus on what the best model is for predicting car prices. The the data is usually scraped by the authors \cite{gegicCarPricePrediction2019}\cite{bukvicPricePredictionClassification2022}\cite{jinPricePredictionUsed2021}, or taken from a source like Kaggle \cite{zhengMachineLearningOptimization2025}\cite{nandanPreownedCarPrice2023}.
+
+Most of the papers that compared multiple models, found that more complex models, such as \textbf{XGBoost} \cite{nandanPreownedCarPrice2023}, \textbf{Random Forest} \cite{vossResalePricePrediction}\cite{jinPricePredictionUsed2021} or \textbf{Neural Netwroks}\cite{liuResearchPredictionModel2022} worked the best, but the differences were often not so significant, the best models achieved were usually between \textit{85-95\%} accuracy.
+There were some surprises too, some have found that rather interestingly other methods worked better for them, such as \textbf{SVM} \cite{shaprapawadCarPricePrediction2023a}, \textbf{LightGBM} \cite{liResearchUsedCar2022} or \textbf{Linear Regression} \cite{bukvicPricePredictionClassification2022} in case of a smaller dataset.
+
+Some other interesting findings include for example Zheng Y. \cite{zhengMachineLearningOptimization2025} for whom the most challenging part of price prediction in his case of XGBoost, Random Forest and Linear Regression was of predicting the price of premium cars, the models constantly underestimated them, leading to worse accuracy. The author also suggests taking extra special care when cleaning outliers in price. 
+Chen et al. \cite{chenComparativeAnalysisUsed2017} split their dataset into three distinct groups, once using just cars of the same make and build year, once just a car series and once all data together. They found that random forest worked all round better than linear regression, and that the more records and more features they included, the greater this distance became. This and other papers also suggest that we should not bother with linear regression in cases of larger, more complex datasets.
+Nandan et al. \cite{nandanPreownedCarPrice2023} had a similar experience to us with their large amount of missing values and they also had features reminescent of ours in their Kaggle dataset, they solved the missing values issue with the following method, which they found most optimal and we shall also try to implement in our case:
+
+\begin{displayquote}
+  "To replenish the missing values in the data, the IterativeImputer technique is employed, with a variety of estimators being developed and their respective MSEs being generated ... the ExtraTreesRegressor estimator is preferable for the imputation strategy in the case of missing value"
+\end{displayquote}
+
+Huang et al. \cite{huangUsedCarPrice2022} had similarly many features to us, leading them to use a forward feature selection which we also plan on implementing due to the large number of features we have. One more interesting thing to note is how they came up with their final prediction, which is a weighted average of their different already well functioning models.
+
+\begin{displayquote}
+  "...weighted average fusion of XGBoost, CatBoost, LightGBM, and ANN. Its R2 can reach 0.9845, and the prediction effect is the best."
+\end{displayquote}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/huang_et_al_findings.png}
+  \caption{Huang et al. comparative performance of models. Source: \cite{huangUsedCarPrice2022}}
+  \label{fig:huang_et_al_findings}
+\end{figure}
+
+As a conclusion of the literature review, we can safely say that there is no real consensus on what the best model may be for predicting car prices, which may be due to many factors, like the different datasets, different preoprocessing steps and different features. However, we can also see that the more complex models perform better in exploring more nuanced relationships, leading to better predictions as corroborated by Voß S. \cite{vossResalePricePrediction}. Models such as XGBoost and Random Forest seem to be some of the most popular ones, and they are also the ones that we will be expecting to work the best for our case.
 
 \section{Methodology}
+
 \begin{itemize}
     \item \textbf{Data Collection, Description and Management:} Describe the steps involved in data collection or preprocessing, including EDA.
     \item \textbf{Analysis Techniques:} Describe your approach to solving the problem. You can include a model diagram to illustrate your method.
@@ -72,22 +99,23 @@ Some papers like \cite{alsharedUsedCarsPrice2021} for example...
 \end{itemize}
 
 \subsection{Data Collection}
+
 In our case the data collection is a rather interesting part of the project, which took quite some time. Unlike other groups, we had to find our own primary datasource, seeking a used car marketplace which we could scrape.
 After several trials of scraping different websites, we finally ended up with one that was quite lenient with their robots.txt file, and we could scrape it without any issues. The website we used was \url{https://www.autoscout24.com/}, which is one of the largest used car marketplaces in Europe boasting more than 2 million listings.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/autoscout.png}
-  \caption{Screenshot of Autoscout24 Homepage}
+  \caption{Screenshot of Autoscout24 Homepage. source: Autoscout24}
   \label{fig:autoscout}
 \end{figure}
 
-The scraping took place from \date{2025-04-03} to \date{2025-04-08}, running practically 24/7 on a laptop even though parallelization was used. In the end we have collected \textit{505804} rows of data, which is a lot more than we could have hoped for in, and wrote it to a \textbf{parquet} file. The scraping consisted of two main parts, which we will discuss in the following subsections along with the bigger challanges we have faced.
+The scraping took place from \date{2025-04-03} to \date{2025-04-08}, running practically 24/7 on a laptop even though parallelization was used. In the end we have collected \textit{505804} rows of data, which is a lot more than we could have hoped for in, and wrote it to a \textbf{parquet} file. The scraping consisted of two main parts, which we will discuss in the following subsections along with the bigger challenges we have faced.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/autoscout_scraper.png}
-  \caption{Screenshot of Autoscout Scraper}
+  \caption{Screenshot of Autoscout Scraper. Source: Autoscout24}
   \label{fig:autoscout_scraper}
 \end{figure}
 
@@ -132,7 +160,7 @@ First off, we got rid of useless features, this included completely empty, almos
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/missing_values_heatmap.png}
-  \caption{Missing Values Heatmap}
+  \caption{Missing Values Heatmap. Source: Own work}
   \label{fig:missing_values_heatmap}
 \end{figure}
 
@@ -158,7 +186,7 @@ In the end came the most interesting part, the outlier cleaning. We have inspect
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/boxplots_before.png}
-  \caption{Boxplots of Numerical Features Before Cleaning}
+  \caption{Boxplots of Numerical Features Before Cleaning. Source: Own work}
   \label{fig:boxplots_before}
 \end{figure}
 
@@ -175,12 +203,34 @@ After removing the outliers for other features, with similar care, but less manu
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/boxplots_after.png}
-  \caption{Boxplots of Numerical Features After Cleaning}
+  \caption{Boxplots of Numerical Features After Cleaning. Source: Own work}
   \label{fig:boxplots_after}
 \end{figure}
 
 The final dataset was then saved to an alternative parquet file, which we will be using for our further analysis. The cleaning here was on purpose not too harsh, such that each subsequent analysis can decide to further clean the data if needed, but we believe we have already found a good balance between keeping the data and cleaning it.
 In the end this cleaning process removed \textit{36430} rows from our dataset, which is just \textit{7.2\%} of the original dataset. This seems reasonable, and we have addressed the the possible downsides of our process as losing all the data for some ultra premium car brands, like Koenigsegg, Paganni and losing some data in case a regular car brand happens to have premium models as well, e.g. Nissan GTR.
+
+\subsection{Exploratory Data Analysis}
+
+TODO: Here we will present some interesting findings from our exploratory data analysis.
+
+\subsection{Tools and Software Used}
+
+We used a variety of tools and software for this project, including:
+
+\begin{itemize}
+  \item \textbf{Python} primary programming language, used for data scraping, cleaning, and analysis.
+  \item \textbf{Selenium} used for web scraping, when user interaction was necessary.
+  \item \textbf{BeautifulSoup} for parsing HTML, gathering data from requests.
+  \item \textbf{Pandas} for data manipulation and analysis via DataFrames.
+  \item \textbf{Matplotlib} and \textbf{Seaborn} for data visualization.
+  \item \textbf{Jupyter Notebook} for interactive development and documentation.
+  \item \textbf{Scikit-learn} for machine learning and model evaluation.
+  \item \textbf{Pytorch} for deep learning models, if applicable.
+  \item \textbf{LaTeX} for typesetting and writing the report.
+  \item \textbf{Zotero} for managing references and citations.
+  \item \textbf{Git} for version control and collaboration between team members.
+\end{itemize}
 
 \section{Results}
 Describe experiments and the evaluation protocol. Include tables, graphs, and charts as needed to present your findings and results.
@@ -192,9 +242,8 @@ Interpret and analyze the results, and discuss possible future work and improvem
 Provide a summary of the project, key findings, and recommendations. (Approximately 200--350 words.)
 
 \section{Bibliography}
-Include relevant references such as websites, blogs, articles, research papers, etc.
 
-\printbibliography
+\printbibliography[heading=none]
 
 \section{Self-Reflection}
 Add a paragraph or half-page note reflecting on the project.

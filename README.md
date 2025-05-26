@@ -6,30 +6,14 @@ This README purely serves as a guide on how to run the code and what is the gene
 
 ## Get started
 
-Use the provided venv:
-
-```bash
-source .venv/bin/activate
-```
-
-And install the requirements via:
+Preferably use a `.venv` and install the requirements via:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Datassource and metadata
+The scraper itself has separate requirements which you can separately install via the requirements file in its directory. To find out more about the scraper you may visit its [README.md](./scraper/README.md).
 
-Time of scraping: 05/04/2025 - 21:00
+### Datasource and metadata
 
-### Scraper
-
-To use the scraper first install the required libraries via the `./scraper/requirements.txt` file.
-
-```bash
-pip install -r requirements.txt
-```
-
-> [!NOTE]  
-> You will need to have installed a chomedriver and headless client for Selenium to work.
-> Check out [this guide](https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/) for instructions.
+Time of scraping: 03/04/2025 - 21:00 - 08/04/2025

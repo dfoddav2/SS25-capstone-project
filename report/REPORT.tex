@@ -64,7 +64,7 @@ However, looking for papers that solely try and explore the data and find intere
 
 Here, as the literature review is a small portion of the report, I will just mention some of the interesting conclusions we have found from others. Firstly, there is seemingly no real consensus on what the best model is for predicting car prices. The the data is usually scraped by the authors \cite{gegicCarPricePrediction2019}\cite{bukvicPricePredictionClassification2022}\cite{jinPricePredictionUsed2021}, or taken from a source like Kaggle \cite{zhengMachineLearningOptimization2025}\cite{nandanPreownedCarPrice2023}.
 
-Most of the papers that compared multiple models, found that more complex models, such as \textbf{XGBoost} \cite{nandanPreownedCarPrice2023}, \textbf{Random Forest} \cite{vossResalePricePrediction}\cite{jinPricePredictionUsed2021} or \textbf{Neural Netwroks}\cite{liuResearchPredictionModel2022} worked the best, but the differences were often not so significant, the best models achieved were usually between \textit{85-95\%} accuracy.
+Most of the papers that compared multiple models, found that more complex models, such as \textbf{XGBoost} \cite{nandanPreownedCarPrice2023}, \textbf{Random Forest} \cite{vossResalePricePrediction}\cite{jinPricePredictionUsed2021} or \textbf{Neural Netwroks}\cite{liuResearchPredictionModel2022} worked the best, but the differences were often not so significant, the best models achieved were usually between \textit{85-95\%} R2.
 There were some surprises too, some have found that rather interestingly other methods worked better for them, such as \textbf{SVM} \cite{shaprapawadCarPricePrediction2023a}, \textbf{LightGBM} \cite{liResearchUsedCar2022} or \textbf{Linear Regression} \cite{bukvicPricePredictionClassification2022} in case of a smaller dataset.
 
 Some other interesting findings include for example Zheng Y. \cite{zhengMachineLearningOptimization2025} for whom the most challenging part of price prediction in his case of XGBoost, Random Forest and Linear Regression was of predicting the price of premium cars, the models constantly underestimated them, leading to worse accuracy. The author also suggests taking extra special care when cleaning outliers in price. 
@@ -179,6 +179,8 @@ We found a few imputable / inferable values in our dataset as well:
 \begin{itemize}
   \item \textbf{Age:} had seeminlgy \textit{21454} missing values, wehich we could all infer from the column \textbf{use\_type}, whenever this feature was \textbf{New} or \textbf{Demonstration}, we filled the missing values with \textit{0}, as these cars were not used at all. This left us with no missing values at all in this column.
   \item \textbf{Fuel Type:} given that the fuel type was electric, we could safely infer that the \textbf{co2\_emission} was \textbf{0} and that the \textbf{gearbox} was \textbf{automatic}.
+  \item \textbf{Full Service History:} only had the value of \textbf{Yes} and the lack of this meant that the car did not have a full service history record available, however this was stored as missing value, thus I imputed these with \textbf{No}.
+  \item \textbf{Previous Owner:} had missing values, which we could infer from the \textbf{used\_type} feature, whenever this feature was \textbf{New} or \textbf{Demonstration}, we filled the missing values with \textit{0}, as these cars were not used at all. This left us with no missing values at all in this column.
 \end{itemize}
 
 In the end came the most interesting part, the outlier cleaning. We have inspected 8 of our important numerical features and found that there were some serious outliers in the dataset.
@@ -208,7 +210,7 @@ After removing the outliers for other features, with similar care, but less manu
 \end{figure}
 
 The final dataset was then saved to an alternative parquet file, which we will be using for our further analysis. The cleaning here was on purpose not too harsh, such that each subsequent analysis can decide to further clean the data if needed, but we believe we have already found a good balance between keeping the data and cleaning it.
-In the end this cleaning process removed \textit{36430} rows from our dataset, which is just \textit{7.2\%} of the original dataset. This seems reasonable, and we have addressed the the possible downsides of our process as losing all the data for some ultra premium car brands, like Koenigsegg, Paganni and losing some data in case a regular car brand happens to have premium models as well, e.g. Nissan GTR.
+In the end this cleaning process removed \textit{37656} rows from our dataset, which is just \textit{7.44\%} of the original dataset. This seems reasonable, and we have addressed the the possible downsides of our process as losing all the data for some ultra premium car brands, like Koenigsegg, Paganni and losing some data in case a regular car brand happens to have premium models as well, e.g. Nissan GTR.
 
 \subsection{Exploratory Data Analysis}
 
@@ -234,6 +236,33 @@ We used a variety of tools and software for this project, including:
 
 \section{Results}
 Describe experiments and the evaluation protocol. Include tables, graphs, and charts as needed to present your findings and results.
+
+\subsection{Prediction Models}
+
+As previously mentioned, price prediciton is a very popular topic in the literature, so even though it was not the initial focus of our project, we decided to try and do the best we could with our dataset and make it a prominent part of our report.
+We have used many different models and techniques for price prediction, and found that it is pretty hard to build an overall good model for all cars as there are many valid outliers in form of premium and luxury cars. For this reason, we have decided to run our predictions twice, once on all car brands and all cars, once on just the \textbf{Volkswagen} brand as it is a very popular, common brand with not too many outleirs.
+
+TODO: Here table of best results achieved per model as rows and per dataset as columns.
+
+\subsubsection{Neural Networks}
+
+Neural Networks are not the most popular choice for this task based on the limited literature review we have done, but due to how interesting the topic is we still tried to build a great NN model. Now, the topic of Neural Networks is pretty complex and we most likely do not have the necessary knowledge to properly train one, but we still got an okay result in the end.
+What made working with Neural Networks challenging was the fact that we had to do even more preprocessing than usual. Not including all steps, here are some of the more interesting steps we had to take:
+
+\begin{itemize}
+  \item \textbf{Remove Numerical Features:} We first checked the colinearity of numerical features with price, and decided to remove many columns that did not seem to have any type of effect on the price.
+  \item \textbf{Remove Categorical Features:} Then we similarly removed useless categorical features using the Mutual Information method.
+  \item \textbf{Grouping and Embedding:} The\textbf{car_title} and \textbf{make} categorical features with had a lot of unique values, 2400+ and and 200+ respectively, so we first grouped very rare occurences into an "Other" group. Even after this we of course still had a lot of distinct values, so we have used an embedding layer to convert this feature into a dense vector using LabelEncoder instead of just OHE.
+  \item \textbf{One-Hot Encoding:} We have used a one-hot encoding for all remaining categorical features, because they did not have too many unique values.
+  \item \textbf{Standardization:} We have standardized the numerical features, as they had very different scales.
+\end{itemize}
+
+We also split the data 70-15-15 for training, validation and testing sets.
+Due, to how NNs work, we had to deal with missing values somehow, so we decided to take two routes and create separate tests for each. Since we have 504k rows, we had the opportunity to simply drop the rows with any missing values, this led to one of our datasets "df_dropped" with still had more than 200k rows.
+The other dataset "df_imputed" was imputed with the median values and with "Unknown" for the categorical features.
+
+Due to our lack of resources, we had to be smart with how we built and tested our models. Starting out with a simple feedForward NN we tested all of our models both utilizing Embedding and not utilizing it, on both datasets described before. Having run these for 25 epochs, we found that as expected, utilizing Embedding improved the results a lot, but the dropped dataset did not perform better than the imputed one. Following this, we tried hyperparameter tuning our model a bit, which was not so extensive so it only found a few improvements, namely that more layers performed a bit better.
+We experimented around with 2, 3, 4, 5 and 6 layer models and found that while its loss curve was not the smoothest, the 5 layer model performed the best in case of 20 epochs. As a final step we extended the training to 75 epochs
 
 \section{Discussion}
 Interpret and analyze the results, and discuss possible future work and improvements.

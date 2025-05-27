@@ -235,9 +235,7 @@ Describe experiments and the evaluation protocol. Include tables, graphs, and ch
 \subsection{Prediction Models}
 
 As previously mentioned, price prediciton is a very popular topic in the literature, so even though it was not the initial focus of our project, we decided to try and do the best we could with our dataset and make it a prominent part of our report.
-We have used many different models and techniques for price prediction, and found that it is pretty hard to build an overall good model for all cars as there are many valid outliers in form of premium and luxury cars. For this reason, we have decided to run our predictions twice, once on all car brands and all cars, once on just the \textbf{Volkswagen} brand as it is a very popular, common brand with not too many outleirs.
-
-TODO: Here table of best results achieved per model as rows and per dataset as columns.
+We have used many different models and techniques for price prediction, and found that it is pretty hard to build an overall good model for all cars as there are many valid outliers in form of premium and luxury cars. For this reason, we have decided to run our predictions twice, once on all car brands and all cars, once on just the \textbf{Volkswagen} brand as it is a very popular, common brand with not too many outleirs. Here are the results for the overall dataset:
 
 \begin{table}[H]
   \centering
@@ -245,12 +243,52 @@ TODO: Here table of best results achieved per model as rows and per dataset as c
     \toprule
     Method & Mean Absolute Error (MAE) & R-squared (R2)  \\
     \midrule
+    XGBoost & 29770.0580 & 0.7949 \\
     Neural Network & 34476.8203 & 0.7601  \\
     \bottomrule
   \end{tabular}
-  \caption{Neural Network Results}
+  \caption{Model Results}
   \label{tab:model_results}
 \end{table}
+
+\subsubsection{XGBoost}
+
+TODO: Here we will present the results for the XGBoost model.
+
+Results:
+Training Metrics:
+MAE: 14683.8006, MSE: 948185353.4293, R2: 0.9617
+
+Test Metrics:
+MAE: 29770.0580, MSE: 5058389231.1106, R2: 0.7949
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_feature_importance.png}
+  \caption{XGBoost Feature Importance. Source: Own work}
+  \label{fig:xgboost_feature_importance}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_predicted_vs_actual.png}
+  \caption{XGBoost Predicted vs Actual. Source: Own work}
+  \label{fig:xgboost_predicted_vs_actual}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_residuals_distribution.png}
+  \caption{XGBoost Residuals Distribution. Source: Own work}
+  \label{fig:xgboost_residuals_distribution}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_training_MAE_curve.png}
+  \caption{XGBoost Training MAE Cruve. Source: Own work}
+  \label{fig:xgboost_loss_curve}
+\end{figure}
 
 \subsubsection{Neural Networks}
 

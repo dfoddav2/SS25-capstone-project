@@ -1,0 +1,19 @@
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.log
+*.lot
+*.lof
+*.out
+*.toc
+*.synctex.gz
+*.bcf
+*.run.xml
+
+# Other common files
+*.dvi
+# *.pdf

@@ -59,7 +59,7 @@ However, looking for papers that solely try and explore the data and find intere
 
 Here, as the literature review is a small portion of the report, I will just mention some of the interesting conclusions we have found from others. Firstly, there is seemingly no real consensus on what the best model is for predicting car prices. The the data is usually scraped by the authors \cite{gegicCarPricePrediction2019}\cite{bukvicPricePredictionClassification2022}\cite{jinPricePredictionUsed2021}, or taken from a source like Kaggle \cite{zhengMachineLearningOptimization2025}\cite{nandanPreownedCarPrice2023}.
 
-Most of the papers that compared multiple models, found that more complex models, such as \textbf{XGBoost} \cite{nandanPreownedCarPrice2023}, \textbf{Random Forest} \cite{vossResalePricePrediction}\cite{jinPricePredictionUsed2021} or \textbf{Neural Netwroks}\cite{liuResearchPredictionModel2022} worked the best, but the differences were often not so significant, the best models achieved were usually between \textit{85-95\%} R2.
+Most of the papers that compared multiple models, found that more complex models, such as \textbf{XGBoost} \cite{nandanPreownedCarPrice2023}, \textbf{Random Forest} \cite{vossResalePricePrediction}\cite{jinPricePredictionUsed2021} or \textbf{Neural Netwroks}\cite{liuResearchPredictionModel2022} worked the best, but the differences were often not so significant, the best models achieved were usually between \textit{85-95\%} R\textsuperscript{2}.
 There were some surprises too, some have found that rather interestingly other methods worked better for them, such as \textbf{SVM} \cite{shaprapawadCarPricePrediction2023a}, \textbf{LightGBM} \cite{liResearchUsedCar2022} or \textbf{Linear Regression} \cite{bukvicPricePredictionClassification2022} in case of a smaller dataset.
 
 Some other interesting findings include for example Zheng Y. \cite{zhengMachineLearningOptimization2025} for whom the most challenging part of price prediction in his case of XGBoost, Random Forest and Linear Regression was of predicting the price of premium cars, the models constantly underestimated them, leading to worse accuracy. The author also suggests taking extra special care when cleaning outliers in price. 
@@ -73,7 +73,7 @@ Nandan et al. \cite{nandanPreownedCarPrice2023} had a similar experience to us w
 Huang et al. \cite{huangUsedCarPrice2022} had similarly many features to us, leading them to use a forward feature selection which we also plan on implementing due to the large number of features we have. One more interesting thing to note is how they came up with their final prediction, which is a weighted average of their different already well functioning models.
 
 \begin{displayquote}
-  "...weighted average fusion of XGBoost, CatBoost, LightGBM, and ANN. Its R2 can reach 0.9845, and the prediction effect is the best."
+  "...weighted average fusion of XGBoost, CatBoost, LightGBM, and ANN. Its R\textsuperscript{2} can reach 0.9845, and the prediction effect is the best."
 \end{displayquote}
 
 \begin{figure}[H]
@@ -241,7 +241,7 @@ We have used many different models and techniques for price prediction, and foun
   \centering
   \begin{tabular}{@{}lcc@{}}
     \toprule
-    Method & Mean Absolute Error (MAE) & R-squared (R2)  \\
+    Method & Mean Absolute Error (MAE) & R-squared (R\textsuperscript{2})  \\
     \midrule
     XGBoost & 29770.0580 & 0.7949 \\
     Neural Network & 34476.8203 & 0.7601  \\
@@ -253,14 +253,20 @@ We have used many different models and techniques for price prediction, and foun
 
 \subsubsection{XGBoost}
 
-TODO: Here we will present the results for the XGBoost model.
+XGBoost was shown in some of the papers to be performant, so we decided to try it out as well. We have used the \textbf{XGBoost Regressor} from the \textbf{xgboost} packages, as we have also seen in this semester's \textbf{Machine Learning} course.
+XGBoost is quite forgiving in terms of preprocessing, so all we had to do was the following:
 
-Results:
-Training Metrics:
-MAE: 14683.8006, MSE: 948185353.4293, R2: 0.9617
+\begin{itemize}
+  \item \textbf{Drop Useless Columns:} We dropped some columns that we deemed useless, such as \textbf{url} and some others.
+  \item \textbf{Split Data:} We split the data into training and testing sets, using an 80-20 split.
+  \item \textbf{Group High Cardinality Features:} We grouped high cardinality categorical features like \textbf{car\_title} into a more manageable number of categories.
+  \item \textbf{Fill Missing Values:} We filled missing categorical values with "Unknown" or similar values.
+\end{itemize}
 
-Test Metrics:
-MAE: 29770.0580, MSE: 5058389231.1106, R2: 0.7949
+After all of this, we naturally One-Hot Encoded the categorical features, which left us with quite a few features, \textit{1685} to be exact.
+
+We first did a common quick and easy setup, which already worked quite well, with an R\textsuperscript{2} of \textit{0.6965} and a MAE of \textit{47693.6563}. This is already comparable to some of our other models, but of course we wanted to improve on this.
+First however, we decided to check the feature importance of the model, which was quite lifelike, with \textbf{make} and \textbf{car\_title} being the most important individual descriptors.
 
 \begin{figure}[H]
   \centering
@@ -269,6 +275,36 @@ MAE: 29770.0580, MSE: 5058389231.1106, R2: 0.7949
   \label{fig:xgboost_feature_importance}
 \end{figure}
 
+We did some hyperparameter tuning with Randomized Search which gave us a new improved baseline to work with, but was not successful at finding the best parameters, as we could not experiment with so many parameters due to performance and time constraints.
+After finding these new baseline parameters, we experimented around with more epochs, smaller learning rates, and bigger max depths, trying to find the point where the model would start overfitting to the point where additional complication was not worth it anymore. We think after many rounds of painfully long training and experimentation found a satisfying conclusion to this.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric & Train & Test \\
+    \midrule
+    Average Test Loss (MSE) & 948185353.4293 & 5058389231.1106 \\
+    Mean Absolute Error (MAE) & 14683.8006 & 29770.0580 \\
+    R-squared (R\textsuperscript{2}) & 0.9617 & 0.7949 \\
+    \bottomrule
+  \end{tabular}
+  \caption{XGBoost Results}
+  \label{tab:xgboost_results}
+\end{table}
+
+We can see that the model managed to learn the training data quite well, with an R\textsuperscript{2} of \textit{0.9617}, which in conjunction with our training curves show that we are nearing the level of overfitting, but this is still acceptable and quite an improvement over the baseline performance on the test set too.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_training_MAE_curve.png}
+  \caption{XGBoost Training MAE Cruve. Source: Own work}
+  \label{fig:xgboost_loss_curve}
+\end{figure}
+
+Plotting the predicted vs actual prices, we can see that the model as in case of many other models too, has a tendency to overestimate some cars under 150k price, which seems serious from the graph, but is not so problematic in context, since most of our cars are under this price range and that is why there are so many points there.
+The other tendency is unerestimation of luxury and ultra premium cars.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/xgboost_predicted_vs_actual.png}
@@ -276,18 +312,13 @@ MAE: 29770.0580, MSE: 5058389231.1106, R2: 0.7949
   \label{fig:xgboost_predicted_vs_actual}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{./images/xgboost_residuals_distribution.png}
-  \caption{XGBoost Residuals Distribution. Source: Own work}
-  \label{fig:xgboost_residuals_distribution}
-\end{figure}
+The histogram of residuals shows us that the vast majority of predictions are quite accurate, it is interesting to compare this to the Neural Network's residual distribution for example, compared to which we can see a much sharper and narrower distribution around the zero point.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{./images/xgboost_training_MAE_curve.png}
-  \caption{XGBoost Training MAE Cruve. Source: Own work}
-  \label{fig:xgboost_loss_curve}
+  \includegraphics[width=0.8\textwidth]{./images/xgboost_predicted_vs_actual_residuals_distribution.png}
+  \caption{XGBoost Residuals Distribution. Source: Own work}
+  \label{fig:xgboost_residuals_distribution}
 \end{figure}
 
 \subsubsection{Neural Networks}
@@ -298,7 +329,7 @@ What made working with Neural Networks challenging was the fact that we had to d
 \begin{itemize}
   \item \textbf{Remove Numerical Features:} We first checked the colinearity of numerical features with price, and decided to remove many columns that did not seem to have any type of effect on the price.
   \item \textbf{Remove Categorical Features:} Then we similarly removed useless categorical features using the Mutual Information method.
-  \item \textbf{Grouping and Embedding:} The\textbf{car\_title} and \textbf{make} categorical features with had a lot of unique values, 2400+ and and 200+ respectively, so we first grouped very rare occurences into an "Other" group. Even after this we of course still had a lot of distinct values, so we have used an embedding layer to convert this feature into a dense vector using LabelEncoder instead of just OHE.
+  \item \textbf{Grouping and Embedding:} The \textbf{car\_title} and \textbf{make} categorical features with had a lot of unique values, 2400+ and and 200+ respectively, so we first grouped very rare occurences into an "Other" group. Even after this we of course still had a lot of distinct values, so we have used an embedding layer to convert this feature into a dense vector using LabelEncoder instead of just OHE.
   \item \textbf{One-Hot Encoding:} We have used a one-hot encoding for all remaining categorical features, because they did not have too many unique values.
   \item \textbf{Standardization:} We have standardized the numerical features, as they had very different scales.
 \end{itemize}
@@ -325,7 +356,7 @@ We experimented around with 2, 3, 4, 5 and 6 layer models and found that while i
     \midrule
     Average Test Loss (MSE) & 5886004206.0474 \\
     Mean Absolute Error (MAE) & 34476.8203 \\
-    R-squared (R2) & 0.7601 \\
+    R-squared (R\textsuperscript{2}) & 0.7601 \\
     \bottomrule
   \end{tabular}
   \caption{Neural Network Results}
@@ -341,7 +372,7 @@ This R2 is not the best, but quite decent at \textit{0.7601}. We can see that th
   \label{fig:nn_predicted_vs_actual}
 \end{figure}
 
-As we we can see, the model is not perfect, it has a tendency to overestimate some of the cars under 100k and seriously underestimate the premium / luxury cars, which is a common problem in the literature as well.\cite{zhengMachineLearningOptimization2025}
+As we can see, the model is not perfect, it has a tendency to overestimate some of the cars under 100k and seriously underestimate the premium / luxury cars, which is a common problem in the literature as well.\cite{zhengMachineLearningOptimization2025}
 
 \begin{figure}[H]
   \centering

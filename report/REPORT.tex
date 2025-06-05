@@ -79,7 +79,7 @@ Huang et al. \cite{huangUsedCarPrice2022} had similarly many features to us, lea
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{./images/huang_et_al_findings.png}
+  \includegraphics[width=0.5\textwidth]{./images/huang_et_al_findings.png}
   \caption{Huang et al. comparative performance of models. Source: \cite{huangUsedCarPrice2022}}
   \label{fig:huang_et_al_findings}
 \end{figure}
@@ -214,21 +214,32 @@ TODO: Here we will present some interesting findings from our exploratory data a
 
 \subsection{Tools and Software Used}
 
-We used a variety of tools and software for this project, including:
+We used a variety of tools and software for this project. The following table summarizes the tools and their respective purposes:
 
-\begin{itemize}
-  \item \textbf{Python} primary programming language, used for data scraping, cleaning, and analysis.
-  \item \textbf{Selenium} used for web scraping, when user interaction was necessary.
-  \item \textbf{BeautifulSoup} for parsing HTML, gathering data from requests.
-  \item \textbf{Pandas} and \textbf{Numpy} for data manipulation and analysis
-  \item \textbf{Matplotlib} and \textbf{Seaborn} for data visualization.
-  \item \textbf{Jupyter Notebook} for interactive development and documentation.
-  \item \textbf{Scikit-learn} for machine learning and model evaluation.
-  \item \textbf{Pytorch} for deep learning models, if applicable.
-  \item \textbf{LaTeX} for typesetting and writing the report.
-  \item \textbf{Zotero} for managing references and citations.
-  \item \textbf{Git} for version control and collaboration between team members.
-\end{itemize}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Tool/Software} & \textbf{Purpose} \\
+    \midrule
+    Python & Primary programming language for data scraping, cleaning, and analysis. \\
+    Selenium & Web scraping (when user interaction was necessary). \\
+    BeautifulSoup & Parsing HTML and gathering data from requests. \\
+    Pandas & Data manipulation and analysis. \\
+    Numpy & Numerical computing and array operations. \\
+    Matplotlib & Data visualization. \\
+    Seaborn & Statistical data visualization. \\
+    Jupyter Notebook & Interactive development and documentation. \\
+    Scikit-learn & Machine learning and model evaluation. \\
+    Pytorch & Deep learning models (if applicable). \\
+    LaTeX & Typesetting and writing the report. \\
+    Zotero & Managing references and citations. \\
+    Git & Version control and collaboration. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tools and Software Used}
+  \label{tab:tools_software}
+\end{table}
 
 \section{Results}
 Describe experiments and the evaluation protocol. Include tables, graphs, and charts as needed to present your findings and results.
@@ -501,8 +512,5 @@ Provide a summary of the project, key findings, and recommendations. (Approximat
 \FloatBarrier
 \section{Bibliography}
 \printbibliography[heading=none]
-
-\section{Self-Reflection}
-Add a paragraph or half-page note reflecting on the project.
 
 \end{document}

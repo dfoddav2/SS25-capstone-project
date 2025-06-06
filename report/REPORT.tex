@@ -208,6 +208,15 @@ After removing the outliers for other features, with similar care, but less manu
 The final dataset was then saved to an alternative parquet file, which we will be using for our further analysis. The cleaning here was on purpose not too harsh, such that each subsequent analysis can decide to further clean the data if needed, but we believe we have already found a good balance between keeping the data and cleaning it.
 In the end this cleaning process removed \textit{37656} rows from our dataset, which is just \textit{7.44\%} of the original dataset. This seems reasonable, and we have addressed the the possible downsides of our process as losing all the data for some ultra premium car brands, like Koenigsegg, Paganni and losing some data in case a regular car brand happens to have premium models as well, e.g. Nissan GTR.
 
+We have also created another, more harshly cleaned dataset that drops 30\% more data, but is better able to capture the more regular cars. The numerical columns of this datasset have much better distributions, as visible from the following boxplots.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/boxplots_harshly_cleaned.png}
+  \caption{Boxplots of Numerical Features After Harsh Cleaning. Source: Own work}
+  \label{fig:boxplots_after_harsh}
+\end{figure}
+
 \subsection{Exploratory Data Analysis}
 
 TODO: Here we will present some interesting findings from our exploratory data analysis.
@@ -493,7 +502,37 @@ Our residuals plots are almost identical to the ones using the whole dataset, ex
 
 \subsubsection{Limiting to One Car - VW Golf}
 
-TODO: Here we will describe the process of limiting the dataset to only one car, VW Golf, and the results we achieved with this approach.
+We saw that from before, that simply limiting the dataset to one make does not necessarily lead to better results if the prices still have a wide range, so we decided to try and limit the dataset to just one car, the most common car in our dataset, which was the \textbf{VW Golf}. This way we hoped to get rid of the outliers and achieve better results.
+
+Here we decided to approach the process in two ways, taking all VW Golfs, including for example the performance models, such as the GTI and R, and then taking only the regular models. The following table shows the results of these two separate approaches.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Dataset & MAE & MAPE & MSE & R\textsuperscript{2}   \\
+    \midrule
+    All VW Golfs (Train) & 2996.59 & 22.97\% & 38246625.51 & 0.9951 \\
+    All VW Golfs (Test) & 9015.96 & 36.45\% & 1174102816.20 & 0.8768 \\
+    Base VW Golfs (Train) & 563.78 & 8.60\% & 989554.54 & 0.9913 \\
+    Base VW Golfs (Test) & 2035.60 & 25.32\% & 13413777.77 & 0.8936 \\
+    \bottomrule
+  \end{tabular}
+  \caption{XGBoost Results on VW Golf Dataset}
+  \label{tab:xgboost_vw_golf_results}
+\end{table}
+
+We can see that the results are much better than on the whole dataset and the narrower the dataset the better the results are.
+The 25\% MAPE and MAE of 2k euros is much more acceptable for the Golf, compared to the overall 30k MAE we had before. The predicted vs actual plots also look much nicer.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/vw_golf_predicted_vs_actuals.png}
+  \caption{XGBoost Predicted vs Actual Prices on Base VW Golf Dataset. Source: Own work}
+  \label{fig:xgboost_vw_golf_predicted_vs_actual}
+\end{figure}
+
+This plot does not show the common problem of overestimating cheaper cars we have seen from more general models. Probably due to the fact that there aren't premium models in the dataset, so the model does not have to learn to predict these outliers.
 
 \subsubsection{Cleaning Prices More Harshly}
 

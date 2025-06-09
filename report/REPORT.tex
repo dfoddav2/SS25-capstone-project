@@ -145,7 +145,7 @@ This allowed for us to scrape the data in a much more efficient way, as we could
 
 Interesting to note that between the two scraping phases, many links seem to have moved, perhaps due to being sold, or delisted so this case also needed to be addressed.
 
-\subsection{Preprocessing}
+\subsection{Preprocessing}\label{sec:preprocessing}
 
 We worked separately in numeral Jupyter notebooks, there have been separate notebooks created per each member exploring different aspects of the data. We first started by cleaning the data at the start of each of our own separate notebooks, but later on we decided to do a comprehensive cleaning of the dataset in a separate joint notebook, which can serve as the basis for all of our future work.
 
@@ -208,7 +208,9 @@ After removing the outliers for other features, with similar care, but less manu
 The final dataset was then saved to an alternative parquet file, which we will be using for our further analysis. The cleaning here was on purpose not too harsh, such that each subsequent analysis can decide to further clean the data if needed, but we believe we have already found a good balance between keeping the data and cleaning it.
 In the end this cleaning process removed \textit{37656} rows from our dataset, which is just \textit{7.44\%} of the original dataset. This seems reasonable, and we have addressed the the possible downsides of our process as losing all the data for some ultra premium car brands, like Koenigsegg, Paganni and losing some data in case a regular car brand happens to have premium models as well, e.g. Nissan GTR.
 
-We have also created another, more harshly cleaned dataset that drops 30\% more data, but is better able to capture the more regular cars. The numerical columns of this datasset have much better distributions, as visible from the following boxplots.
+We also wanted to create a separate dataset, which is even more cleaned to see if that would yield better results in our prediction models.
+In the end we used a mixture of IQR and strict numerical capping in conjunction with a by car\_title based IQR outlier removal based on our already cleaned dataset from before.
+This cleaning process can be seen our \textbf{harsh\_cleaning.ipynb} notebook, at the end of which, we exported the newly cleaned dataset to another parquet file.
 
 \begin{figure}[H]
   \centering
@@ -216,6 +218,9 @@ We have also created another, more harshly cleaned dataset that drops 30\% more 
   \caption{Boxplots of Numerical Features After Harsh Cleaning. Source: Own work}
   \label{fig:boxplots_after_harsh}
 \end{figure}
+
+As we can see, the distributions are much nicer and we still have \textit{68.33\%} of the original cleaned dataset left, leaving us with \textit{320k} rows.
+Thus, we can say that this dataset is fairly representative of the average used car market, but it is seriously lacking in premium and luxury cars, as we have capped the prices at around \textit{64k} EUR
 
 \subsection{Exploratory Data Analysis}
 
@@ -287,14 +292,6 @@ XGBoost is quite forgiving in terms of preprocessing, so all we had to do was th
 After all of this, we naturally One-Hot Encoded the categorical features, which left us with quite a few features, \textit{1685} to be exact.
 
 We first did a common quick and easy setup, which already worked quite well, with an R\textsuperscript{2} of \textit{0.6965} and a MAE of \textit{47693.6563}. This is already comparable to some of our other models, but of course we wanted to improve on this.
-First however, we decided to check the feature importance of the model, which was quite lifelike, with \textbf{make} and \textbf{car\_title} being the most important individual descriptors.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{./images/xgboost_feature_importance.png}
-  \caption{XGBoost Feature Importance. Source: Own work}
-  \label{fig:xgboost_feature_importance}
-\end{figure}
 
 We did some hyperparameter tuning with Randomized Search which gave us a new improved baseline to work with, but was not successful at finding the best parameters, as we could not experiment with so many parameters due to performance and time constraints.
 After finding these new baseline parameters, we experimented around with more epochs, smaller learning rates, and bigger max depths, trying to find the point where the model would start overfitting to the point where additional complication was not worth it anymore. We think after many rounds of painfully long training and experimentation found a satisfying conclusion to this.
@@ -536,7 +533,54 @@ This plot does not show the common problem of overestimating cheaper cars we hav
 
 \subsubsection{Cleaning Prices More Harshly}
 
-TODO: Here we will describe the process of cleaning the prices more harshly, removing more outliers and the results we achieved with this approach.
+Another possible approach we wanted to try was to clean the all of our numerical features more harhsly as many of them were very skewed.
+In the end we used a mixture of IQR and strict numerical capping in conjunction with a by car\_title based IQR outlier removal which I have explained before in section \ref{sec:preprocessing}.
+Training the XGBoost model, we had an idea that this dataset would perform much better than the base cleaned dataset, but we did not expect it to even outperform the VW Golf dataset, which it has done by quite a large margin.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric & Train & Test \\
+    \midrule
+    Mean Absolute Error (MAE) & 500.7276 & 1806.8305 \\
+    Mean Squared Error (MSE) & 522615.9210 & 10388687.9100 \\
+    R-squared (R\textsuperscript{2}) & 0.9972 & 0.9439 \\
+    Mean Absolute Percentage Error (MAPE) & 6.44\% & 16.63\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{XGBoost Results on Harshly Cleaned Dataset}
+  \label{tab:xgboost_harshly_cleaned_results}
+\end{table}
+
+These results are very impressive, with a MAE of just \textit{1806.8305} EUR, which is actually almost usable on a price range of \textit{500} EUR to \textit{64k} EUR.
+Even the R\textsuperscript{2} of \textit{0.9439} is very much comparable with that of the scientific literature. Our MAPE is also down to \textit{16.63\%}, which is a very acceptable value.
+In this case, we found our best configuration via hyperparameter tuning and making the model more complex seems to have just worsened the results.
+Being satisfied with these results, we tried inspecting the residuals and the predicted vs actual prices, which look very nice, with the model not overestimating the cheaper cars and not underestimating the premium ones either by a large margin as we have seen before.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/harshly_cleaned_predicted_vs_actuals.png}
+  \caption{ Predicted vs Actual - Harshly Cleaned. Source: Own work}
+  \label{fig:predicted_vs_actual_harshly_cleaned}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/harshly_cleaned_predicted_vs_actual_residuals_distribution.png}
+  \caption{Residuals Distribution - Harshly Cleaned. Source: Own work}
+  \label{fig:residuals_distribution_harshly_cleaned}
+\end{figure}
+
+One more plot we could inspect is the feature importance, which show a completely realistic picture of what may influence the price of a car.
+In this more grounded dataset, we see \textbf{used\_type} as the most important factor, which is very reasonable. Aside the classic features such as power and mileage many lifelike features make an appearance, such as the automatic gearbox, whether the car is a pickup or if it has 4WD.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/harshly_cleaned_feature_importance.png}
+  \caption{Feature Importance - Harshly Cleaned. Source: Own work}
+  \label{fig:feature_importance_harshly_cleaned}
+\end{figure}
 
 \subsubsection{Adding Extra Features}
 

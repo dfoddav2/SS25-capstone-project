@@ -25,7 +25,7 @@
   \vspace*{1in}
   {\Huge\bfseries Used Car Characteristics\par}
   \vspace{0.5em}
-  {\Large An Explanatory Data Analysis\par}
+  {\Large An Exploratory and Predictive Data Analysis\par}
   \vspace{1.5in}
   {\Large Dávid Fodor \\ Faisal Zayeem Ahmed \\ Márió Palágyi\par}
   \vfill
@@ -36,6 +36,9 @@
 
 \begin{abstract}
 A brief overview of the project, including problem statement, methodology, key findings, and conclusions.
+
+TODO: FINISH ABSTRACT
+
 \end{abstract}
 
 \section{Introduction}
@@ -44,8 +47,9 @@ A brief overview of the project, including problem statement, methodology, key f
 \textbf{Data:} Describe your dataset.\\[1ex]
 \textbf{Background Information:} Provide context and challenges based on your understanding of the problem.
 
+TODO: FINISH INTRODUCTION
+
 \section{Literature Review}
-Summary of relevant research and related works in the field. This section does not need to be exhaustive; include background knowledge on how the problem has been addressed before and how you plan to solve it.
 
 Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results.
 
@@ -88,11 +92,7 @@ As a conclusion of the literature review, we can safely say that there is no rea
 
 \section{Methodology}
 
-\begin{itemize}
-    \item \textbf{Data Collection, Description and Management:} Describe the steps involved in data collection or preprocessing, including EDA.
-    \item \textbf{Analysis Techniques:} Describe your approach to solving the problem. You can include a model diagram to illustrate your method.
-    \item \textbf{Tools and Software Used:} List the tools, frameworks, and software used for the project.
-\end{itemize}
+In our methodology section, we will be describing the steps we took to collect our data, process it and what we have found douring our exploratory data analysis. We will also be discussing the tools and software we used for this project.
 
 \subsection{Data Collection}
 
@@ -111,7 +111,7 @@ The scraping took place from \date{2025-04-03} to \date{2025-04-08}, running pra
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{./images/autoscout_scraper.png}
-  \caption{Screenshot of Autoscout Scraper. Source: Autoscout24}
+  \caption{Screenshot of Autoscout Scraper. Source: Own work}
   \label{fig:autoscout_scraper}
 \end{figure}
 
@@ -138,10 +138,20 @@ In theory almost every common feature of cars can be filtered on the page, so wi
 This constituted most of our time scraping, as the user interaction needed to be waited upon and there were simply a lot of possible permutations of make, power, pagination possibilities to go through.
 We of course parallelized and worked on multiple cores, also introducing shortcuts, e.g. if we found a make with less than \textit{500} lisitng we did not need to loop through power ranges at all.
 
-\subsubsection{Scraping Car Details}
+\subsubsection{Scraping Car Details}\label{sec:scraping_car_details}
 
 Once we have collected all the car URLs, the scraping was quite straightforward. We have tested the scraping on individual listings first, trying to find out what categories of data we can scrape and how we may achieve that. At this stage, we were lucky, as no user interaction was needed at all, not even for \textbf{declining cookies}, as the underlying HTML structure already contained the data we needed.
 This allowed for us to scrape the data in a much more efficient way, as we could simply use the \textbf{requests} package and \textbf{BeautifulSoup} to parse the HTML and extract the data we needed. This had much lower overhead and allowed us to scrape more listings simultaneously. First fetching into a list in memory, then converting to a df, to then export into a \textbf{parquet} file.
+
+Most of the features scraped are self-explanatory, but there are a few interesting ones from different categories that are notworthy to mention:
+
+\begin{itemize}
+  \item \textbf{Metadata:} This includes the \textbf{url} of the listing, which is important for us to be able to link back to the original listing.
+  \item \textbf{Numerical Features:} These include features such as \textbf{price}, \textbf{mileage} and \textbf{power}. These are seemigly important for our analysis, as they may be the main features that we will be using for our prediction models.
+  \item \textbf{Categorical Features:} These include classical features such as \textbf{make}, \textbf{car\_title} and \textbf{fuel\_type}.
+  \item \textbf{Data That Needs Processing:} One good example of this is the \textbf{registration\_date} feature, which with some simple calculation can be transformed into the \textbf{age\_months} feature.
+  \item \textbf{Additional Text Features:} We also had 4 columns that contained a lot of additional data that was quite sparse so we had to collect them into a single \textbf{;} delimitted string, which we later explode into multiple features. Such features are stored in \textbf{extras}, \textbf{safety\_and\_security}, \textbf{comfort\_and\_convenience} and \textbf{entertainment\_and\_media}.
+\end{itemize}
 
 Interesting to note that between the two scraping phases, many links seem to have moved, perhaps due to being sold, or delisted so this case also needed to be addressed.
 
@@ -224,7 +234,22 @@ Thus, we can say that this dataset is fairly representative of the average used 
 
 \subsection{Exploratory Data Analysis}
 
-TODO: Here we will present some interesting findings from our exploratory data analysis.
+After preprocessing the data, we performed an exploratory data analysis to gain some insights into our freshly harvested dataset.
+We used various visualization techniques and statistics, but to keep this report concise, we will only present some of the more interesting findings.
+
+One of the first thigns we have checked for was the correlation between numerical features, which we visualized to see if we had mulitcollinearity issues.
+The matrix showed us there are many features that are highly correlated, as expected, some of the worst offenders were \textbf{fuel\_consumption VS co2\_emissions}, \textbf{mileage VS age\_months} and \textbf{power VS engine\_size}.
+These are all features that we would expect to be collerated, but our main feature we are interested in is the \textbf{price}, for which we were happy to see that it had multiple highly correlated features, both positive and negative.
+Maybe the only really surprisingly useful feature we did not expect to be so highly correlated was the \textbf{empyt\_weight} of the car, which is strongly positively correlated. In hindsight, this makes sense as heavier cars are usually bigger, more powerful and thus also weigh more, but it is not generally a feature one might think of.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/correlation_matrix.png}
+  \caption{Correlation Matrix of Numerical Features. Source: Own work}
+  \label{fig:correlation_matrix}
+\end{figure}
+
+TODO: FINISH EDA
 
 \subsection{Tools and Software Used}
 
@@ -262,6 +287,9 @@ Describe experiments and the evaluation protocol. Include tables, graphs, and ch
 
 As previously mentioned, price prediciton is a very popular topic in the literature, so even though it was not the initial focus of our project, we decided to try and do the best we could with our dataset and make it a prominent part of our report.
 We have used many different models and techniques for price prediction, and found that it is pretty hard to build an overall good model for all cars as there are many valid outliers in form of premium and luxury cars.
+That is why we have decided to approach the task from different angles, to see what could be a feasible strategy for predicting the price of used cars. We had the idea of just focusing on one brand, one specific car model and even more harsher cleaning.
+Here are the main metrics all together in one table:
+
 \begin{table}[H]
   \centering
   \begin{tabular}{@{}lcc@{}}
@@ -271,11 +299,23 @@ We have used many different models and techniques for price prediction, and foun
     XGBoost & 29770.0580 & 0.7949 \\
     Random Forest & 29822.8709 & 0.7823 \\
     Neural Network & 34476.8203 & 0.7601  \\
+    % \addlinespace[0.5ex]
+    \midrule
+    XGBoost (Volkswagen) & 35747.3092 & 0.8295 \\
+    XGBoost (All VW Golfs) & 9015.9600 & 0.8768 \\
+    XGBoost (Base VW Golfs) & 2035.6000 & 0.8936 \\
+    % \addlinespace[0.5ex]
+    \midrule
+    XGBoost (Harshly Cleaned) & 1806.8305 & 0.9439 \\
+    XGBoost (Harshly Cleaned Extras) & 1735.6964 & 0.9496 \\
     \bottomrule
   \end{tabular}
   \caption{Model Results}
   \label{tab:model_results}
 \end{table}
+
+Important to note that, the MAE values are not directly comparable here, as the models were trained on different datasets, with different scales of price.
+For some of the models, you will also find MAPE values in the respective secitons.
 
 \subsubsection{XGBoost}
 
@@ -584,13 +624,74 @@ In this more grounded dataset, we see \textbf{used\_type} as the most important 
 
 \subsubsection{Adding Extra Features}
 
-TODO: Here we will describe the process of adding extra features to the dataset, such as interaction terms or polynomial features, and the results we achieved with this approach.
+Having seen how well the harshly cleaned dataset performed, we decided to try and add the extra leftover features to this dataset, to see if we could get an even better result.
+For this we tried using our composite \textbf{;} delimitted features, as explained in section \ref{sec:scraping_car_details}.
+We did a short analysis and found that we would generally keep those additional features that were present for at least \textit{5\%} of the dataset, plus we removed those features that were too common in the modern age, e.g. "Radio" or "ABS".
+In the end, we were left with \textit{90} additional features, which we then one-hot encoded and added to our dataset.
+
+As usual we trained the XGBoost based on the harshly cleaned dataset, but this time with the additional features we got marginally better results.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric & Train & Test \\
+    \midrule
+    Mean Absolute Error (MAE) & 1212.6710 & 1735.6964 \\
+    Mean Squared Error (MSE) & 3041479.5255 & 9336662.8078 \\
+    R-squared (R\textsuperscript{2}) & 0.9835 & 0.9496 \\
+    Mean Absolute Percentage Error (MAPE) & 12.79\% & 16.344\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{XGBoost Results on Harshly Cleaned Dataset with Extra Features}
+  \label{tab:xgboost_harshly_cleaned_extra_features_results}
+\end{table}
+
+This is a modest \textit{71} EUR improvement on the MAE, \textit{0.57\%} improvement on R\textsuperscript{2} and almost \textit{0.3\%} improvement on MAPE, which is not too bad, but not too impressive either.
+We can also see that for this best model we have found a configuration that did not fit the training data as much as the previous one, given more boosting rounds, we probably could have achieved that coveted \textit{0.95} R\textsuperscript{2} on the test set, but this was already using \textit{10000} boosting rounds, taking a long time.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/extras_harshly_cleaned_loss_curve.png}
+  \caption{MAE Loss Curve of the Harshly Cleaned Extra Features Model. Source: Own work}
+  \label{fig:harshly_cleaned_extra_features_loss_curve}
+\end{figure}
+
+The top 20 feature importance of this model shows that these additional features are generally not as important as our base numerical features and they are less important than our make and car\_title features, but some of them can still be significant predictors, e.g. \textbf{electric\_tailgate} which is a very good indicator of a premium trim level, usually present in luxury cars.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/extras_harshly_cleaned_feature_importance.png}
+  \caption{Feature Importance - Harshly Cleaned with Extra Features. Source: Own work}
+  \label{fig:feature_importance_harshly_cleaned_extra_features}
+\end{figure}
+
+As for the predicted vs actual prices and residuals distribution plot, they are visibly better compared to even the harshly cleaned dataset.
+The residuals distribution was plotted on the same scale as the previous one, thus they are directly comparable, and we can see that the distribution is not as sharp, but it is more balanced, with more of the predictions being closer to the actual prices.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/extras_harshly_cleaned_predicted_vs_actuals.png}
+  \caption{Predicted vs Actual - Harshly Cleaned with Extra Features. Source: Own work}
+  \label{fig:predicted_vs_actual_harshly_cleaned_extra_features}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/extras_harshly_cleaned_predicted_vs_actual_residuals_distribution.png}
+  \caption{Residuals Distribution - Harshly Cleaned with Extra Features. Source: Own work}
+  \label{fig:residuals_distribution_harshly_cleaned_extra_features}
+\end{figure}
 
 \section{Discussion}
 Interpret and analyze the results, and discuss possible future work and improvements.
 
+TODO: FINISH DISCUSSION
+
 \section{Conclusion}
 Provide a summary of the project, key findings, and recommendations. (Approximately 200--350 words.)
+
+TODO: FINISH CONCLUSION
 
 \FloatBarrier
 \section{Bibliography}

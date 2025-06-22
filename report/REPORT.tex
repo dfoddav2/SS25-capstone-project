@@ -27,28 +27,54 @@
   \vspace{0.5em}
   {\Large An Exploratory and Predictive Data Analysis\par}
   \vspace{1.5in}
-  {\Large Dávid Fodor \\ Faisal Zayeem Ahmed \\ Márió Palágyi\par}
+  {\Large Dávid Fodor \\ Faisal Zayeem Khan \\ Márió Palágyi\par}
   \vfill
-  {\large Submission date: TBD\par}
+  {\large Submission date: \textit{25.06.2025}\par}
   \vspace{0.5in}
   {\large Datascience Capstone Project - IMC Krems}  % Optional: use the current date
 \end{titlepage}
 
 \begin{abstract}
-A brief overview of the project, including problem statement, methodology, key findings, and conclusions.
-
-TODO: FINISH ABSTRACT
-
+This project addresses the complex challenge of accurately predicting used car prices by developing a robust machine learning model. Utilizing a comprehensive dataset scraped from a major European online car marketplace, we conducted extensive data preprocessing and feature engineering. A key focus was placed on transforming complex, semi-structured text features—such as optional extras and convenience packages—into a structured format suitable for modeling. We evaluated several regression algorithms, including Random Forest and Neural Networks, ultimately selecting XGBoost for its superior performance. Through iterative hyperparameter tuning and meticulous feature engineering, our final model achieved a high predictive accuracy, with a Mean Absolute Error (MAE) of €1735.70 and an R-squared value of 0.9496 and MAPE of \textit{16.34\%} on the test set, making predictions in the \textit{0 - 60k} euros range. The results demonstrate that detailed feature extraction from composite text fields, combined with a powerful gradient boosting framework, can create a highly effective and reliable model for vehicle price prediction, significantly outperforming baseline approaches, however our results also suggest that the most important step by far is having the right data and proper cleaning. We have also gathered feature importances for multiple models, concluding that the base numerical descriptors like mileage and power combined with the car's make and model are the most important features as expected. Through a surface level literature review, we have found that while papers in this topic are numerous, they are not as usefull as one might think due to common lacking description and disclosure of the data pipeline.
 \end{abstract}
 
+\vfill
+
+\textbf{Individual contributions:}
+\begin{itemize}
+  \item \textbf{Dávid Fodor:} \textit{60\%} - Data Scraping, Preprocessing, EDA, Predictions, Literature Review, Report Writing, Presentations
+  \item \textbf{Faisal Zayeem Khan:} \textit{20\%} - EDA, Presentations
+  \item \textbf{Márió Palágyi:} \textit{20\%} - EDA, Presentations
+\end{itemize}
+
+\newpage
+\tableofcontents
+
+\newpage
 \section{Introduction}
-\textbf{Problem Statement:} Describe the problem.\\[1ex]
-\textbf{Objectives:} List the objectives and tasks required to be completed.\\[1ex]
-\textbf{Data:} Describe your dataset.\\[1ex]
-\textbf{Background Information:} Provide context and challenges based on your understanding of the problem.
 
-TODO: FINISH INTRODUCTION
+Our topic was a unique one, as we wanted to explore something we were really interested in and also wanted to give webscraping a try, as we have not done it on such a large scale before.
+We wanted to explore the used car market, and see what interesting patterns we can find in the data, as well as try to predict the price of used cars.
+This goes hand-in-hand with webscraping, as there are plenty of used car marketplaces on the internet.
 
+It is a very relevant subject as it affects many people and businesses all around the world and on the market the price is the single most important factor one must get right to make a fair deal.
+Market has inconsistent prices, it is not transparent to neither sellers, nor buyers and even professionals may be lacking crucial information on the factors that make up the price of a used car.
+Thus, with the motivation of helping people make better informed and fairer deals, we set out to explore the following research questions:
+
+\begin{itemize}
+  \item How many / what features influence the price in a significant way?
+  \item Is it possible to accurately predict car costs from the features?
+  \item Subquestions:
+    \begin{itemize}
+      \item What trends or patterns can we uncover by using simple EDA on car characteristics?
+      \item Is it possible to process composite features in a way that helps us predict or rate cars?
+    \end{itemize}
+\end{itemize}
+
+In the end, hopefully we may even have a usable prediction model that could feasibly be used in production, like a suggestion system for car market places as an example.
+But first, we have to do some digging in the scientific literature to see what has been done before, so that we can relate our own findings.
+
+\newpage
 \section{Literature Review}
 
 Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results.
@@ -90,6 +116,7 @@ Huang et al. \cite{huangUsedCarPrice2022} had similarly many features to us, lea
 
 As a conclusion of the literature review, we can safely say that there is no real consensus on what the best model may be for predicting car prices, which may be due to many factors, like the different datasets, different preoprocessing steps and different features. However, we can also see that the more complex models perform better in exploring more nuanced relationships, leading to better predictions as corroborated by Voß S. \cite{vossResalePricePrediction}. Models such as XGBoost and Random Forest seem to be some of the most popular ones, and they are also the ones that we will be expecting to work the best for our case.
 
+\newpage
 \section{Methodology}
 
 In our methodology section, we will be describing the steps we took to collect our data, process it and what we have found during our exploratory data analysis. We will also be discussing the tools and software we used for this project.
@@ -247,8 +274,6 @@ We used various visualization techniques and statistics, but to keep this report
 
 One of the first thigns we have checked for was the correlation between numerical features, which we visualized to see if we had mulitcollinearity issues.
 The matrix showed us there are many features that are highly correlated, as expected, some of the worst offenders were \textbf{fuel\_consumption VS co2\_emissions}, \textbf{mileage VS age\_months} and \textbf{power VS engine\_size}.
-These are all features that we would expect to be collerated, but our main feature we are interested in is the \textbf{price}, for which we were happy to see that it had multiple highly correlated features, both positive and negative.
-Maybe the only really surprisingly useful feature we did not expect to be so highly correlated was the \textbf{empyt\_weight} of the car, which is strongly positively correlated. In hindsight, this makes sense as heavier cars are usually bigger, more powerful and thus also weigh more, but it is not generally a feature one might think of.
 
 \begin{figure}[H]
   \centering
@@ -256,6 +281,12 @@ Maybe the only really surprisingly useful feature we did not expect to be so hig
   \caption{Correlation Matrix of Numerical Features. Source: Own work}
   \label{fig:correlation_matrix}
 \end{figure}
+
+These are all features that we would expect to be collerated, but our main feature we are interested in is the \textbf{price}, for which we were happy to see that it had multiple highly correlated features, both positive and negative.
+Maybe the only really surprisingly useful feature we did not expect to be so highly correlated was the \textbf{empyt\_weight} of the car, which is strongly positively correlated. In hindsight, this makes sense as heavier cars are usually bigger, more powerful and thus also weigh more, but it is not generally a feature one might think of.
+This meant that we could possibly do \textbf{PCA} on the dataset with high efficiency, but as the number of numerical features listed was not very high, and one of our main goals is explainability, being able to discern the most important features, we decided against it, as we would rather keep the features as they are.
+
+Following this, we tried to find more interesting facts and patterns in the data. As this took many experiments, we will not go into so much detail and only present some of the more interesting, notable findings.
 
 TODO: FINISH EDA
 
@@ -288,6 +319,7 @@ We used a variety of tools and software for this project. The following table su
   \label{tab:tools_software}
 \end{table}
 
+\newpage
 \section{Results}
 Describe experiments and the evaluation protocol. Include tables, graphs, and charts as needed to present your findings and results.
 
@@ -323,7 +355,15 @@ Here are the main metrics all together in one table:
 \end{table}
 
 Important to note that, the MAE values are not directly comparable here, as the models were trained on different datasets, with different scales of price.
-For some of the models, you will also find MAPE values in the respective secitons.
+For some of the models, you will also find MAPE values in their result tables.
+Here is a graphical representation of the prediction workflow, that helps to visualize the process at a glance:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./images/predictions_graph.drawio.png}
+  \caption{Prediction Workflow. Source: Own work}
+  \label{fig:prediction_workflow}
+\end{figure}
 
 \subsubsection{XGBoost}
 
@@ -691,16 +731,71 @@ The residuals distribution was plotted on the same scale as the previous one, th
   \label{fig:residuals_distribution_harshly_cleaned_extra_features}
 \end{figure}
 
+\newpage
 \section{Discussion}
-Interpret and analyze the results, and discuss possible future work and improvements.
 
-TODO: FINISH DISCUSSION
+Once more, here is the overall table of all the predictive model results compared:
 
+\begin{table}[H]
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Method & Mean Absolute Error (MAE) & R-squared (R\textsuperscript{2})  \\
+    \midrule
+    XGBoost & 29770.0580 & 0.7949 \\
+    Random Forest & 29822.8709 & 0.7823 \\
+    Neural Network & 34476.8203 & 0.7601  \\
+    \midrule
+    XGBoost (Volkswagen) & 35747.3092 & 0.8295 \\
+    XGBoost (All VW Golfs) & 9015.9600 & 0.8768 \\
+    XGBoost (Base VW Golfs) & 2035.6000 & 0.8936 \\
+    \midrule
+    XGBoost (Harshly Cleaned) & 1806.8305 & 0.9439 \\
+    XGBoost (Harshly Cleaned Extras) & 1735.6964 & 0.9496 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Model Results Comparison}
+  \label{tab:model_results_discussion}
+\end{table}
+
+We can see that generally, the more concrete we were, the narrower the dataset was, the better the performance was, but this was mostly thanks to the narrowing of price range and the removal of some outliers, as when we did a much harsher cleaning of the dataset, we achieved even better results.
+It may be concluded that it is nigh impossible to build a singular general model that is capable to predict such a large range of prices, including premium and luxury cars up to even the multiple million euro range in our case.
+
+The results seen for our best model already show that we could feasibly use car price prediction models in practice with a little bit of tuning.
+Even our current MAPE of \textit{16.34\%} is not too bad and could be used as a general car price suggestion tool for used cars with the caveat that it only really works with cars that are up to 60k euros.
+From our understanding of the predictions we assume that there could be a comprehensive prediction strategy made somehow that would better the results, such as creating specialized models by splitting the dataset by multiple features, for example creating a model for the make Volkswagen, within original (time-inflated) price range of \textit{0-20k} EUR, another from \textit{20-40k} EUR and so on.
+With this, we may capture both the everyday cars and the premium ones as well.
+
+As for feature importances, the results were as expected, with the base numerical features such as \textbf{mileage}, \textbf{power} and \textbf{age\_months} being the most important ones overall, almost on the same level as the individual OHE features of \textbf{car\_title} and \textbf{make}.
+Some extra features, such as \textbf{electric\_tailgate} have also made an appearance in the top 20 features, but they were mostly negligible overall, similarly to our other factors, like the sellers identity and country.
+
+Our results are statistically pretty comparable to that of the scientific literature, however this does not mean much, as we have seen that different papers get widely different outcomes not based on their techniques or models generally, but rather based on their dataset.
+We find that it should be obligatory to disclose as much about the dataset and cleaning process for these papers as possible, so that others can better interpret and replicate the results.
+So far, it just seems to be about, whoever can reach the best results statistically, but not necessarily in practice.
+
+One more thing we would have liked to add as a feature was the condition of the car, as it could be a pretty significant factor in the price, but of course this is up to the seller and marketplace to disclose, which almost never happens.
+An interesting research are could be to first build a model that predicts conditions based on prelabeled, categorized images and then using the numerous images attached to the listings, we could try and predict the condition, which would serve as a new input feature for our price prediction model.
+
+\newpage
 \section{Conclusion}
-Provide a summary of the project, key findings, and recommendations. (Approximately 200--350 words.)
 
-TODO: FINISH CONCLUSION
+For the conclusion we would like to reiterate on our main three takeaways from this project:
 
+\begin{itemize}
+  \item It is very hard, likely impossible to build one singular prediction model for a whole marketplace of cars with great range.
+  \item There needs to be a comprehensive strategy for such predictions, e.g. by price range and make models.
+  \item The scientific literature in the topic, while numerous, it is not very helpful, as often not much is disclosed of the data and cleaning process.
+\end{itemize}
+ 
+Considering our original main research questions of whether we can build a reliable price prediction model and what factors influence the price of used cars, we can say that we have achieved a satisfactory result for both via our best XGBoost model and its extracted feature importances in conjunction with our previous EDA.
+
+As for the future, we believe that there is still a lot of room for improvement in this field via coming up with a new, efficient way of splitting the models based on the car's characteristics, building several specialized models, which could elminate the issues we have seen with predictions of premium cars.
+We also suggest that future works in the topic should focus more on their data pipelines and disclose as much information as possible, potentially including the raw data as well, as we have done in our public reposiory.
+This we can only theorize, but an additional factor describing the condition of the car in detail could be a great addition.
+
+We hope that our will inspire others to work on this topic and improve on our results, as we have seen that it is a very interesting and challenging task.
+
+\newpage
 \FloatBarrier
 \section{Bibliography}
 \printbibliography[heading=none]

@@ -80,14 +80,7 @@ But first, we have to do some digging in the scientific literature to see what h
 \newpage
 \section{Literature Review}
 
-Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{./images/google_scholar.png}
-  \caption{Screenshot of Google Scholar Search. Source: Google Scholar}
-  \label{fig:google_scholar}
-\end{figure}
+Luckily, there is plenty of literature on the topic of used car prices, particularly the prediction seems to be a popular topic. Searching on Google Scholar for "used car price prediction" yields almost a million results. (813 thousand to be exact)
 
 However, looking for papers that solely try and explore the data and find interesting patterns is lot more difficult. Mostly, the exploration of all the data is done in the context of a prediction model, which is why we also aim to create a usable prediction model as part of our assignment.
 
@@ -289,9 +282,53 @@ These are all features that we would expect to be collerated, but our main featu
 Maybe the only really surprisingly useful feature we did not expect to be so highly correlated was the \textbf{empyt\_weight} of the car, which is strongly positively correlated. In hindsight, this makes sense as heavier cars are usually bigger, more powerful and thus also weigh more, but it is not generally a feature one might think of.
 This meant that we could possibly do \textbf{PCA} on the dataset with high efficiency, but as the number of numerical features listed was not very high, and one of our main goals is explainability, being able to discern the most important features, we decided against it, as we would rather keep the features as they are.
 
-Following this, we tried to find more interesting facts and patterns in the data. As this took many experiments, we will not go into so much detail and only present some of the more interesting, notable findings.
+In our datset many of the features were strongly positively skewed, which is expected when working with price data, however this fact was also true for other features, such as mileage and power. We had ideas of log transforming these features, but we decided against it, as we wanted to keep the features as they are, to be able to explain the model better later on.
 
-TODO: FINISH EDA
+Following these, we tried to find more interesting facts and patterns in the data. As this took many experiments, we will not go into so much detail and only present some of the more interesting, notable findings.
+If you are interested in the full EDA, which has a lot more interesting facts including facts like even the distribution of exterior colours of the cars, please refer to the \textbf{exploratory.ipynb} notebook under the \textbf{analysis} directory.
+
+\subsubsection{Private VS Dealer Sales}
+
+We found that in this dataset the majority of the cars were by dealerships, which is somewhat expected, \textit{78.8\%} of the cars were soled by dealers, while the rest was from private sellers.
+Continuing, we did some extra analysis in this regarding looking for price differences and such, but what was really interesting and showed great difference is the age of the cars.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{./images/eda_mileage_per_seller_type.png}
+  \caption{Age of Cars by Seller Type. Source: Own work}
+  \label{fig:age_vs_seller_type}
+\end{figure}
+
+The cars of dealerships were much younger overall, which makes sense, as private sellers are not at all likely to sell brand new or almost brand new cars, they first buy their cars with the intent of using it themselves.
+
+\subsubsection{Country-wise Attributes}
+
+We have also collected location data of the listings, originally the dataset had very precise data up to the city level, which could in the future be used for local analysis, but we transfromed these to just carry the country data.
+Here we were mainly interested in the price differences between countries, but of course we also shown many other short facts, like how by far Germany has the most car listings, due to its size.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{./images/eda_mean_price_by_country.png}
+  \caption{Average Price of Cars by Country. Source: Own work}
+  \label{fig:country_price}
+\end{figure}
+
+On average, we can see that there is some correlation between how wealthy a country is and what the average price of a car is, Luxembourg has the highest average price by far, interestingly Germany is not far behind, but this could also be accredited to the fact that many of most popular premium car brands are from here, especially Porsche, BMW, Audi, Mercedes.
+Austria seems to have average, but more expensive prices, meanwhile Italy and Spain have the cheapest average prices.
+
+\subsubsection{Composite Features Exploration}
+
+As mentioned before, we also had four composite features, that were \textbf{;} delimited strings, listing the specific extra features of the given car.
+These features were very numerous, and we dedicated many visualizations to see what we can find in them.
+In the end, we found that it may actually be more interesting to explore what the least common features are, rather than the most common ones, as the most common ones are usually just basic features available for most cars, like \textbf{ABS} or \textbf{Radio} for example.
+Here is a graph listing the least common \textbf{Comfort and Convenience} features, from which we can see many interesting premium functionalities, such as \textbf{Massaging seats}, \textbf{Air Suspension} or \textbf{Rear seat heating}, which is not so premium, as it has become a common feature of midrange new cars as well.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{./images/eda_10_least_common_features.png}
+  \caption{Least Common Extras. Source: Own work}
+  \label{fig:least_common_extras}
+\end{figure}
 
 \subsection{Tools and Software Used}
 

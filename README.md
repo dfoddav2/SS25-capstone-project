@@ -14,6 +14,32 @@ pip install -r requirements.txt
 
 The scraper itself has separate requirements which you can separately install via the requirements file in its directory. To find out more about the scraper you may visit its [README.md](./scraper/README.md).
 
-### Datasource and metadata
+## Structure
+
+The parts of the project have been organized into subdirectories based on their functionality:
+
+```plaintext
+CAPSTONE-PROJECT/
+├── .gitignore
+├── README.md
+├── requirements.txt  (General Requirements for Notebooks)
+├── all_car_details.parquet  (Initial scraped raw data)
+├── all_car_details_cleaned.parquet  (Initial cleaned data)
+├── all_car_details_harshly_cleaned.parquet  (Harshly cleaned dataset)
+├── analysis/  (EDA and Data Cleaning notebooks)
+├── prediction/  (One notebook for each prediction model)
+├── report/  (Everything related to documentation)
+|   ├── images/  (The exported images used in the report)
+|   ├── Final Presentation.pdf
+|   └── REPORT.pdf  (Main long format report)
+└── scraper/  (Scraper code and requirements)
+    ├── README.md
+    ├── requirements.txt
+    └── main.py
+```
+
+## Datasource and metadata
+
+All car data was scraped from: [Autoscout24](https://www.autoscout24.com/) one of Europe's most prominent used car marketplace.
 
 Time of scraping: 03/04/2025 - 21:00 - 08/04/2025
